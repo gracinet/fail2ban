@@ -168,7 +168,7 @@ setup(
 	license = "GPL",
 	platforms = "Posix",
 	cmdclass = {
-		'build_py': build_py, 'build_scripts': build_scripts, 
+		'build_py': build_py_2to3, 'build_scripts': build_scripts_2to3, 
 		'install_scripts': install_scripts_f2b, 'install': install_command_f2b
 	},
 	scripts = [
