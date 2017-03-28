@@ -127,10 +127,12 @@ These files have one section, [Definition].
 The items that can be set are:
 .TP
 .B loglevel
-verbosity level of log output: CRITICAL, ERROR, WARNING, NOTICE, INFO, DEBUG. Default: ERROR
+verbosity level of log output: CRITICAL, ERROR, WARNING, NOTICE, INFO, DEBUG, TRACEDEBUG, HEAVYDEBUG or corresponding numeric value (50-5). Default: ERROR (equal 40)
 .TP
 .B logtarget
-log target: filename, SYSLOG, STDERR or STDOUT. Default: STDERR
+log target: filename, SYSLOG, STDERR or STDOUT. Default: STDOUT if not set in fail2ban.conf/fail2ban.local
+.br
+Note. If fail2ban running as systemd-service, for logging to the systemd-journal, the logtarget could be set to STDOUT
 .br
 Only a single log target can be specified.
 If you change logtarget from the default value and you are using logrotate -- also adjust or disable rotation in the
@@ -197,11 +199,14 @@ Arguments can be passed to actions to override the default values from the [Init
 Values can also be quoted (required when value includes a ","). More that one action can be specified (in separate lines).
 .RE
 .TP
+.B ignoreself
+boolean value (default true) indicates the banning of own IP addresses should be prevented
+.TP
 .B ignoreip
-list of IPs not to ban. They can include a CIDR mask too.
+list of IPs not to ban. They can include a DNS resp. CIDR mask too. The option affects additionally to \fBignoreself\fR (if true) and don't need to contain own DNS resp. IPs of the running host.
 .TP
 .B ignorecommand
-command that is executed to determine if the current candidate IP for banning should not be banned.
+command that is executed to determine if the current candidate IP for banning (or failure-ID for raw IDs) should not be banned. The option affects additionally to \fBignoreself\fR and \fBignoreip\fR and will be first executed if both don't hit.
 .br
 IP will not be banned if command returns successfully (exit code 0).
 Like ACTION FILES, tags like <ip> are can be included in the ignorecommand value and will be substituted before execution. Currently only <ip> is supported however more will be added later.
