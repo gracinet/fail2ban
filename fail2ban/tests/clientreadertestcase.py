@@ -150,6 +150,26 @@ z = 3%(__name__)s
 		self.assertEqual(self.c.get('section', 'zz'), 'thesection') # __name__ works even 'delayed'
 		self.assertEqual(self.c.get('section2', 'z'), '3section2') # and differs per section ;)
 
+	def assertValidateTimeZone(self, inp, expected_output):
+		self.assertFalse(self.c.read('t'))	# nothing is there yet
+		self._write("t.conf", value=None, content='\n'.join(
+			("[section]", "dtz = " + inp)))
+		self.assertTrue(self.c.read('t'))
+		self.assertEqual(self.c.getOptions('section', dict(dtz=('tz', None))),
+				 dict(dtz=expected_output))
+
+	def testTimeZoneUTC(self):
+		self.assertValidateTimeZone('UTC', 'UTC')
+
+	def testTimeZoneUTCFixedOffset(self):
+		self.assertValidateTimeZone('UTC+0200', 'UTC+0200')
+
+	def testTimeZoneUTCFixedOffsetNeg(self):
+		self.assertValidateTimeZone('UTC-0500', 'UTC-0500')
+
+	def testTimeZoneUnknwon(self):
+		self.assertValidateTimeZone('this is not a timezone', None)
+
 	def testComments(self):
 		self.assertFalse(self.c.read('g'))	# nothing is there yet
 		self._write("g.conf", value=None, content="""
