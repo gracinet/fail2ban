@@ -102,6 +102,8 @@ class Filter(JailThread):
 		self.checkAllRegex = False
 		## if true ignores obsolete failures (failure time < now - findTime):
 		self.checkFindTime = True
+		## if set, treat log lines without explicit time zone to be in this time zone
+		self.logtimezone = None
 		## Ticks counter
 		self.ticks = 0
 
@@ -621,7 +623,8 @@ class Filter(JailThread):
 			self.__lastDate = date
 		elif timeText:
 
-			dateTimeMatch = self.dateDetector.getTime(timeText, tupleLine[3])
+			dateTimeMatch = self.dateDetector.getTime(timeText, tupleLine[3],
+								  default_tz=self.logtimezone)
 
 			if dateTimeMatch is None:
 				logSys.error("findFailure failed to parse timeText: %s", timeText)

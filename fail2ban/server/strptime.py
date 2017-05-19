@@ -78,7 +78,18 @@ def getTimePatternRE():
 		names[key] = "%%%s" % key
 	return (patt, names)
 
-def reGroupDictStrptime(found_dict, msec=False):
+def zone2offset(tz, dt):
+	"""Return the proper offset, in minutes according to given timezone at a given time.
+
+	Parameters
+	----------
+	tz: symbolic timezone (for now only UTC[+-]hhmm is supported, and it's assumed to have
+                               been validated already)
+        dt: datetime instance for offset computation
+	"""
+	return int(tz[3:6])*60 + int(tz[6:-1])
+
+def reGroupDictStrptime(found_dict, msec=False, default_tz=None):
 	"""Return time from dictionary of strptime fields
 
 	This is tweaked from python built-in _strptime.
@@ -88,7 +99,8 @@ def reGroupDictStrptime(found_dict, msec=False):
 	found_dict : dict
 		Dictionary where keys represent the strptime fields, and values the
 		respective value.
-
+	default_tz : default timezone to apply if nothing relevant is in found_dict
+                     (may be a non-fixed one in the future)
 	Returns
 	-------
 	float
@@ -209,6 +221,9 @@ def reGroupDictStrptime(found_dict, msec=False):
 	# Actully create date
 	date_result =  datetime.datetime(
 		year, month, day, hour, minute, second, fraction)
+	# Correct timezone if not supplied in the log linge
+	if tzoffset is None and default_tz is not None:
+		tzoffset = zone2offset(default_tz, date_result)
 	# Add timezone info
 	if tzoffset is not None:
 		date_result -= datetime.timedelta(seconds=tzoffset * 60)
