@@ -291,6 +291,7 @@ class DatePatternRegex(DateTemplate):
 		line : str
 			Log line, of which the date should be extracted from.
 		default_tz: optionally used to correct timezone
+
 		Returns
 		-------
 		(float, str)

@@ -26,7 +26,6 @@ __license__ = "GPL"
 
 import glob
 import os
-import re
 from ConfigParser import NoOptionError, NoSectionError
 
 from .configparserinc import sys, SafeConfigParserWithIncludes, logLevel
@@ -212,20 +211,6 @@ class ConfigReaderUnshared(SafeConfigParserWithIncludes):
 
 			return False
 
-	def gettz(self, sec, optname):
-		"""Read and validate an option with timezone type, returning it as str.
-
-		At this point, only fixed offset timezones are understood, such as
-		UTC and UTC+0200, yet the result is not converted to int, to leave room
-		for later implementation of logical time zones with DST, such as Europe/Paris
-		that require runtime interpretation.
-		"""
-		raw = self.get(sec, optname).strip()
-		m = re.match(r'UTC(([+-]\d{2})(\d{2}))?$', raw)
-		if m is None:
-			raise ValueError("Unknown or unsupported time zone: %r" % raw)
-		return raw
-
 	##
 	# Read the options.
 	#
@@ -256,8 +241,6 @@ class ConfigReaderUnshared(SafeConfigParserWithIncludes):
 					v = self.getboolean(sec, optname)
 				elif opttype == "int":
 					v = self.getint(sec, optname)
-				elif opttype == "tz":
-					v = self.gettz(sec, optname)
 				else:
 					v = self.get(sec, optname, vars=pOptions)
 				values[optname] = v
