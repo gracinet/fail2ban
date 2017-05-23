@@ -40,6 +40,7 @@ from .failregex import FailRegex, Regex, RegexException
 from .action import CommandAction
 from .utils import Utils
 from ..helpers import getLogger, PREFER_ENC
+from .strptime import validateTimeZone
 
 # Gets the instance of the logger.
 logSys = getLogger(__name__)
@@ -308,6 +309,22 @@ class Filter(JailThread):
 					pattern = None
 				return pattern, templates[0].name
 		return None
+
+	##
+	# Set the log default time zone
+	#
+	# @param tz the symbolic timezone (for now fixed offset only: UTC[+-]HHMM)
+
+	def setLogTimeZone(self, tz):
+		self.logtimezone = validateTimeZone(tz)
+
+	##
+	# Get the log default timezone
+	#
+	# @return symbolic timezone (a string)
+
+	def getLogTimeZone(self):
+		return self.logtimezone
 
 	##
 	# Set the maximum retry value.
@@ -975,7 +992,10 @@ class FileFilter(Filter):
 					break
 				(timeMatch, template) = self.dateDetector.matchTime(line)
 				if timeMatch:
-					dateTimeMatch = self.dateDetector.getTime(line[timeMatch.start():timeMatch.end()], (timeMatch, template))
+					dateTimeMatch = self.dateDetector.getTime(
+						line[timeMatch.start():timeMatch.end()],
+						(timeMatch, template),
+						default_tz=self.logtimezone)
 				else:
 					nextp = container.tell()
 					if nextp > maxp:
